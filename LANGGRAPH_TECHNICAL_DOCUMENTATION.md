@@ -200,7 +200,7 @@ input_data = SearchInput(query="LangGraph", limit=5).model_dump()
 ### 1.3.3 输入来源
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[用户应用] --> B[LangGraph API]
     C[API网关] --> B
     D[定时任务] --> B
@@ -736,7 +736,7 @@ LangGraph采用**四层架构**设计：
            │               │     → 确定待执行节点
            │               │
            │               ├─► [步骤2] 执行阶段
-           │               │     PregelRunner.invoke()   # pregel/_runner.py:100
+           │               │     PregeTDunner.invoke()   # pregel/_runner.py:100
            │               │     → 并行执行任务
            │               │     → 收集写入
            │               │
@@ -932,7 +932,7 @@ Pregel.invoke(inputs, config)                  # pregel/main.py:700
         │       ├─► prepare_next_tasks()       # pregel/_algo.py:400
         │       │   └─► 返回 [PregelExecutableTask, ...]
         │       │
-        │       ├─► PregelRunner.invoke(tasks) # pregel/_runner.py:100
+        │       ├─► PregeTDunner.invoke(tasks) # pregel/_runner.py:100
         │       │   ├─► ThreadPoolExecutor.map(task.run)
         │       │   ├─► 每个任务：
         │       │   │   ├─► local_read()       # 读取通道
@@ -1332,7 +1332,7 @@ flowchart TD
     Plan --> |有任务| CheckInterrupt{检查中断点}
     
     CheckInterrupt --> |触发中断| Interrupt[返回中断事件]
-    CheckInterrupt --> |继续| Execute[执行阶段<br/>PregelRunner]
+    CheckInterrupt --> |继续| Execute[执行阶段<br/>PregeTDunner]
     
     Execute --> ReadChannels[读取订阅通道]
     ReadChannels --> RunNodes[并行执行节点]
@@ -1361,7 +1361,7 @@ flowchart TD
 ### 3.1.2 节点执行细节流程
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[PregelExecutableTask] --> B{节点类型}
     B --> |普通节点| C[local_read<br/>pregel/_algo.py:173]
     B --> |条件边| D[local_read with fresh=True]
@@ -1516,7 +1516,7 @@ flowchart TD
 ## 3.5 并发执行流程图
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[prepare_next_tasks<br/>返回多个任务] --> B[创建ThreadPoolExecutor]
     B --> C[并行执行]
     
@@ -5105,7 +5105,7 @@ flowchart TD
     J -->|主循环| N[SyncPregelLoop]
     
     N -->|规划| O[prepare_next_tasks]
-    N -->|执行| P[PregelRunner.invoke]
+    N -->|执行| P[PregeTDunner.invoke]
     N -->|更新| Q[apply_writes]
     
     O -->|检查版本| R[channel_versions]
@@ -5125,7 +5125,7 @@ flowchart TD
 ## 图3：数据流动图
 
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph 输入层
         A[用户输入dict]
         B[RunnableConfig]
@@ -5140,7 +5140,7 @@ flowchart LR
     subgraph 执行层
         F[Pregel]
         G[PregelLoop]
-        H[PregelRunner]
+        H[PregeTDunner]
     end
     
     subgraph 存储层
@@ -5249,7 +5249,7 @@ sequenceDiagram
     participant User as 用户
     participant Graph as CompiledStateGraph
     participant Loop as PregelLoop
-    participant Runner as PregelRunner
+    participant Runner as PregeTDunner
     participant Node as 节点
     participant Channel as 通道
     participant CP as Checkpointer
